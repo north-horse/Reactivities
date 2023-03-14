@@ -1,14 +1,11 @@
+import { observer } from "mobx-react-lite";
 import React, { ChangeEvent, useState } from "react";
 import { Button, Form, Segment } from "semantic-ui-react";
-import { Activity } from "../../../app/models/activity";
+import { useStore } from "../../../app/stores/Store";
 
-interface Props {
-    activity: Activity | undefined;
-    closeForm: ()=>void;
-    changeActivity: (activity: Activity) => void;
-    submitting: boolean
-}
-export default function ActivityForm({activity: selectedActivity, closeForm, changeActivity, submitting}:Props){
+export default observer(function ActivityForm(){
+    const {activityStore} = useStore();
+    const {selectedActivity, closeForm, createActivity, updateActivity, loading} = activityStore;
     const initialState = selectedActivity ?? {
         id: '',
         title: '',
@@ -21,7 +18,8 @@ export default function ActivityForm({activity: selectedActivity, closeForm, cha
     const [activity, setActivity] = useState(initialState);
 
     function handleSubmit(){
-        changeActivity(activity);
+        activity.id ? updateActivity(activity) : createActivity(activity);
+        // changeActivity(activity);
         // console.log(activity);
     }
 
@@ -38,10 +36,10 @@ export default function ActivityForm({activity: selectedActivity, closeForm, cha
                 <Form.Input type='date' placeholder='Date'value={activity.date} name='date' onChange={handleInputChange}/>
                 <Form.Input placeholder='City'value={activity.city} name='city' onChange={handleInputChange}/>
                 <Form.Input placeholder='Venue'value={activity.venue} name='venue' onChange={handleInputChange}/>
-                <Button loading={submitting} floated="right" positive type="submit" content="Submit"></Button>
+                <Button loading={loading} floated="right" positive type="submit" content="Submit"></Button>
                 <Button onClick={closeForm} floated="right" positive type="button" content="Cancel"></Button>
 
             </Form>
         </Segment>
     )
-}
+})
